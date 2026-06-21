@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divine Abbah — Mechanical Design Engineer</title>
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --bg3: #131920;
+    --bg4: #1a2330;
+    --accent: #4a9eff;
+    --accent2: #2563eb;
+    --gold: #f0a500;
+    --text: #cdd9e5;
+    --muted: #546e7a;
+    --border: #1e2d3d;
+    --grid: rgba(74,158,255,0.04);
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono','Fira Code',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;overflow-x:hidden;}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 4rem;background:rgba(8,12,16,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+  .nav-logo{font-family:var(--mono);font-size:0.85rem;color:var(--accent);letter-spacing:0.08em;display:flex;align-items:center;gap:0.6rem;}
+  .nav-logo::before{content:'⚙';font-size:1rem;animation:spin 8s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .nav-links{display:flex;gap:2rem;list-style:none;}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s;font-family:var(--mono);}
+  .nav-links a:hover{color:var(--accent);}
+
+  /* HERO */
+  #hero{min-height:100vh;display:flex;align-items:center;padding:7rem 4rem 4rem;position:relative;overflow:hidden;}
+  .blueprint-bg{position:absolute;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;}
+  .blueprint-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(74,158,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(74,158,255,0.015) 1px,transparent 1px);background-size:8px 8px;}
+  .hero-glow{position:absolute;top:-10%;left:-5%;width:700px;height:700px;background:radial-gradient(circle,rgba(74,158,255,0.06) 0%,transparent 65%);pointer-events:none;}
+  .corner{position:absolute;width:20px;height:20px;border-color:rgba(74,158,255,0.3);border-style:solid;}
+  .corner-tl{top:80px;left:30px;border-width:2px 0 0 2px;}
+  .corner-tr{top:80px;right:30px;border-width:2px 2px 0 0;}
+  .corner-bl{bottom:20px;left:30px;border-width:0 0 2px 2px;}
+  .corner-br{bottom:20px;right:30px;border-width:0 2px 2px 0;}
+  .hero-content{position:relative;max-width:900px;}
+  .hero-badge{display:inline-flex;align-items:center;gap:0.75rem;font-family:var(--mono);font-size:0.72rem;color:var(--accent);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:1.5rem;padding:0.45rem 1rem;border:1px solid rgba(74,158,255,0.3);border-radius:2px;background:rgba(74,158,255,0.05);}
+  .badge-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,158,255,0.4);}50%{opacity:0.6;box-shadow:0 0 0 4px rgba(74,158,255,0);}}
+  .hero-name{font-size:clamp(3rem,8vw,6.5rem);font-weight:800;line-height:0.95;letter-spacing:-0.04em;margin-bottom:0.75rem;}
+  .hero-name span{color:transparent;-webkit-text-stroke:1px rgba(74,158,255,0.5);}
+  .hero-title{font-family:var(--mono);font-size:clamp(0.9rem,1.8vw,1.1rem);color:var(--muted);margin-bottom:0.5rem;letter-spacing:0.06em;}
+  .hero-certs{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem;margin-top:1rem;}
+  .cert-tag{display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--mono);font-size:0.68rem;padding:0.3rem 0.7rem;border:1px solid rgba(240,165,0,0.4);color:var(--gold);background:rgba(240,165,0,0.06);border-radius:2px;letter-spacing:0.06em;}
+  .cert-tag::before{content:'★';font-size:0.6rem;}
+  .hero-desc{font-size:1rem;color:#8899aa;max-width:560px;margin-bottom:2.5rem;line-height:1.8;}
+  .hero-ctas{display:flex;gap:1rem;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.75rem;font-size:0.82rem;font-family:var(--mono);letter-spacing:0.06em;text-decoration:none;border-radius:2px;transition:all 0.2s;cursor:pointer;border:none;}
+  .btn-primary{background:var(--accent);color:#fff;font-weight:700;}
+  .btn-primary:hover{background:#6ab4ff;transform:translateY(-1px);box-shadow:0 4px 20px rgba(74,158,255,0.3);}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+  .hero-specs{position:absolute;bottom:2.5rem;right:4rem;display:flex;gap:3rem;}
+  .spec{text-align:right;}
+  .spec-val{display:block;font-size:2.2rem;font-weight:800;color:var(--accent);line-height:1;font-family:var(--mono);}
+  .spec-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;}
+
+  /* SECTIONS */
+  section{padding:6rem 4rem;}
+  .section-label{display:flex;align-items:center;gap:0.75rem;font-family:var(--mono);font-size:0.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.16em;margin-bottom:0.75rem;}
+  .section-label::before{content:'';width:2rem;height:1px;background:var(--accent);}
+  .section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:3rem;line-height:1.1;}
+
+  /* ABOUT */
+  #about{background:var(--bg2);}
+  .about-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:5rem;align-items:start;}
+  .photo-wrap{position:relative;}
+  .photo-placeholder{aspect-ratio:3/4;max-height:480px;background:var(--bg3);border:1px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;color:var(--muted);font-family:var(--mono);font-size:0.75rem;border-radius:2px;}
+  .photo-frame{position:absolute;top:12px;left:12px;right:-12px;bottom:-12px;border:1px solid rgba(74,158,255,0.2);border-radius:2px;pointer-events:none;z-index:-1;}
+  .annotation{position:absolute;font-family:var(--mono);font-size:0.62rem;color:rgba(74,158,255,0.5);white-space:nowrap;}
+  .ann-1{top:-1.5rem;left:0;}
+  .ann-2{bottom:-1.5rem;right:0;}
+  .about-text p{color:#8899aa;line-height:1.85;margin-bottom:1.1rem;font-size:0.95rem;}
+  .about-text p strong{color:var(--text);}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;}
+  .info-item{background:var(--bg3);border:1px solid var(--border);padding:1rem;border-radius:2px;}
+  .info-key{font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem;}
+  .info-val{font-size:0.88rem;color:var(--text);font-weight:600;}
+
+  /* SKILLS */
+  #skills{background:var(--bg);}
+  .skills-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+  .skill-card{background:var(--bg2);border:1px solid var(--border);padding:2rem;border-radius:2px;transition:border-color 0.25s;position:relative;overflow:hidden;}
+  .skill-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform 0.4s;}
+  .skill-card:hover::before{transform:scaleX(1);}
+  .skill-card:hover{border-color:rgba(74,158,255,0.3);}
+  .card-icon{font-size:1.5rem;margin-bottom:1rem;width:44px;height:44px;background:rgba(74,158,255,0.08);border:1px solid rgba(74,158,255,0.15);border-radius:2px;display:flex;align-items:center;justify-content:center;}
+  .card-title{font-size:0.95rem;font-weight:700;margin-bottom:0.2rem;}
+  .card-sub{font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-bottom:1.25rem;}
+  .skill-bars{display:flex;flex-direction:column;gap:0.85rem;}
+  .s-head{display:flex;justify-content:space-between;margin-bottom:0.3rem;}
+  .s-name{font-size:0.8rem;color:var(--text);}
+  .s-pct{font-family:var(--mono);font-size:0.72rem;color:var(--accent);}
+  .s-track{height:2px;background:var(--border);border-radius:1px;overflow:hidden;}
+  .s-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--accent2),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform 1.1s cubic-bezier(0.4,0,0.2,1);}
+  .software-grid{grid-column:span 2;background:var(--bg2);border:1px solid var(--border);padding:2rem;border-radius:2px;}
+  .sw-title{font-size:0.88rem;font-weight:700;margin-bottom:1.25rem;color:var(--text);}
+  .sw-pills{display:flex;flex-wrap:wrap;gap:0.6rem;}
+  .sw-pill{font-family:var(--mono);font-size:0.72rem;padding:0.4rem 0.9rem;background:var(--bg3);border:1px solid var(--border);border-radius:2px;color:var(--muted);transition:all 0.2s;display:flex;align-items:center;gap:0.4rem;}
+  .sw-pill:hover{border-color:var(--accent);color:var(--accent);}
+  .sw-pill.certified{border-color:rgba(240,165,0,0.4);color:var(--gold);}
+  .sw-pill.certified::before{content:'★';font-size:0.6rem;}
+
+  /* PROJECT IMAGE CAROUSEL */
+  .proj-carousel{overflow:hidden;width:100%;height:320px;}
+  .pc-track{display:flex;height:100%;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);}
+  .pc-slide{flex:0 0 100%;height:100%;overflow:hidden;}
+  .pc-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+  .pc-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);border:1px solid rgba(74,158,255,0.3);color:#fff;font-size:1.4rem;width:38px;height:38px;border-radius:2px;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;transition:background 0.2s,border-color 0.2s;}
+  .pc-btn:hover{background:rgba(74,158,255,0.7);border-color:var(--accent);}
+  .pc-prev{left:0.75rem;}
+  .pc-next{right:0.75rem;}
+  .pc-dots{position:absolute;bottom:0.75rem;left:50%;transform:translateX(-50%);display:flex;gap:0.4rem;z-index:3;}
+  .pc-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);transition:background 0.3s,transform 0.3s;}
+  .pc-dot.active{background:var(--accent);transform:scale(1.3);}
+  .media-type-tag{position:absolute;top:0.6rem;left:0.6rem;font-family:var(--mono);font-size:0.6rem;padding:0.2rem 0.5rem;background:rgba(0,0,0,0.7);color:var(--accent);border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;pointer-events:none;}
+
+  /* PROJECTS */
+  #projects{background:var(--bg2);}
+  .projects-list{display:flex;flex-direction:column;gap:2.5rem;}
+  .project-card-full{background:var(--bg3);border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color 0.25s;position:relative;}
+  .project-card-full:hover{border-color:rgba(74,158,255,0.35);}
+  .project-card-full::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));transform:scaleX(0);transform-origin:left;transition:transform 0.4s;z-index:1;}
+  .project-card-full:hover::before{transform:scaleX(1);}
+  .proj-info{display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1.5rem;padding:1.5rem 2rem;}
+  .proj-num{font-family:var(--mono);font-size:2rem;font-weight:800;color:rgba(74,158,255,0.15);line-height:1;min-width:2.5rem;padding-top:0.1rem;}
+  .proj-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;}
+  .proj-tag{font-family:var(--mono);font-size:0.62rem;padding:0.2rem 0.5rem;background:rgba(74,158,255,0.08);color:var(--accent);border-radius:2px;letter-spacing:0.06em;text-transform:uppercase;}
+  .proj-name{font-size:1.05rem;font-weight:700;margin-bottom:0.35rem;color:var(--text);}
+  .proj-desc{font-size:0.82rem;color:var(--muted);line-height:1.65;}
+  .proj-meta{text-align:right;padding-top:0.1rem;}
+  .proj-stat-val{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--accent);display:block;white-space:nowrap;}
+  .proj-stat-key{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;}
+
+  /* COLLABORATORS SLIDER */
+  #collaborators{background:var(--bg);}
+  .collab-intro{font-size:0.95rem;color:var(--muted);max-width:560px;margin-bottom:3rem;line-height:1.75;}
+  .slider-wrap{position:relative;overflow:hidden;}
+  .slider-wrap::before,.slider-wrap::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none;}
+  .slider-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),transparent);}
+  .slider-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent);}
+  .slider-track{display:flex;gap:1.5rem;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);will-change:transform;}
+  .collab-card{flex:0 0 220px;background:var(--bg2);border:1px solid var(--border);border-radius:2px;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;text-align:center;min-height:150px;position:relative;transition:border-color 0.25s,background 0.25s;}
+  .collab-card:hover{background:var(--bg3);border-color:rgba(74,158,255,0.3);}
+  .collab-card img{max-width:130px;max-height:60px;object-fit:contain;filter:brightness(1.1);}
+  .collab-name{font-size:0.75rem;font-weight:700;color:var(--text);line-height:1.3;}
+  .collab-type{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;}
+  .collab-country{position:absolute;top:0.5rem;right:0.6rem;font-family:var(--mono);font-size:0.55rem;color:rgba(74,158,255,0.4);letter-spacing:0.06em;}
+  .slider-dots{display:flex;justify-content:center;gap:0.5rem;margin-top:1.5rem;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--border);border:none;cursor:pointer;transition:background 0.3s,transform 0.3s;padding:0;}
+  .dot.active{background:var(--accent);transform:scale(1.3);}
+  .s-arrow{width:36px;height:36px;border-radius:2px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:3;}
+  .s-arrow:hover{border-color:var(--accent);color:var(--accent);}
+  .slider-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+  .slider-arrows{display:flex;gap:0.5rem;}
+
+  /* DESIGN PORTFOLIO CONVEYOR */
+  #gallery{background:var(--bg);}
+  .portfolio-wrap{overflow:hidden;position:relative;}
+  .portfolio-wrap::before,.portfolio-wrap::after{content:'';position:absolute;top:0;bottom:0;width:100px;z-index:3;pointer-events:none;}
+  .portfolio-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),transparent);}
+  .portfolio-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent);}
+  .conveyor-track{display:flex;gap:1.25rem;animation:conveyor 40s linear infinite;width:max-content;}
+  .conveyor-track:hover{animation-play-state:paused;}
+  @keyframes conveyor{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+  .conv-card{flex:0 0 280px;background:var(--bg2);border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color 0.3s,transform 0.3s;cursor:pointer;}
+  .conv-card:hover{border-color:var(--accent);transform:translateY(-4px);}
+  .conv-card img{width:100%;height:180px;object-fit:cover;display:block;transition:transform 0.4s;}
+  .conv-card:hover img{transform:scale(1.04);}
+  .conv-label{padding:0.75rem 1rem;font-size:0.75rem;color:var(--muted);font-family:var(--mono);line-height:1.4;}
+  .conv-cat{display:inline-block;font-size:0.6rem;padding:0.15rem 0.45rem;background:rgba(74,158,255,0.08);color:var(--accent);border-radius:2px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.35rem;}
+  .filtered-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.25rem;}
+  .filtered-grid.active{display:grid;}
+  .filtered-grid .conv-card{flex:unset;}
+  .gallery-filter{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;}
+  .f-btn{font-family:var(--mono);font-size:0.68rem;padding:0.4rem 1rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:2px;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s;}
+  .f-btn:hover,.f-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(74,158,255,0.05);}
+
+  /* CONTACT */
+  #contact{background:var(--bg2);text-align:center;}
+  .contact-inner{max-width:580px;margin:0 auto;}
+  .contact-desc{color:var(--muted);font-size:0.95rem;line-height:1.8;margin-bottom:2rem;}
+  .contact-email{display:inline-block;font-size:clamp(1.3rem,3.5vw,2rem);font-weight:800;color:var(--text);text-decoration:none;letter-spacing:-0.02em;position:relative;margin:1.5rem 0;transition:color 0.2s;}
+  .contact-email::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform 0.3s;}
+  .contact-email:hover{color:var(--accent);}
+  .contact-email:hover::after{transform:scaleX(1);}
+  .social-row{display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-top:2rem;}
+  .soc-link{display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--mono);font-size:0.72rem;color:var(--muted);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--border);border-radius:2px;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.2s;}
+  .soc-link:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* FOOTER */
+  footer{padding:1.25rem 4rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:0.68rem;color:var(--muted);}
+  footer em{color:var(--accent);font-style:normal;}
+
+  /* REVEAL */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity 0.65s ease,transform 0.65s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  /* RESPONSIVE */
+  @media(max-width:960px){
+    nav{padding:1rem 2rem;}
+    section{padding:4rem 2rem;}
+    #hero{padding:6rem 2rem 4rem;}
+    .about-grid{grid-template-columns:1fr;gap:3rem;}
+    .skills-layout{grid-template-columns:1fr;}
+    .software-grid{grid-column:span 1;}
+    .hero-specs{position:static;margin-top:3rem;justify-content:flex-start;}
+    .proj-info{grid-template-columns:auto 1fr;gap:1rem;}
+    .proj-meta{display:none;}
+    footer{flex-direction:column;gap:0.5rem;text-align:center;}
+  }
+  @media(max-width:580px){
+    .nav-links{display:none;}
+    .hero-specs{gap:2rem;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DE // Portfolio</div>
+  <ul class="nav-links">
+    <li><a href="#about">Profile</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#collaborators">Clients</a></li>
+    <li><a href="#gallery">Portfolio</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="blueprint-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="badge-dot"></span>Open to opportunities</div>
+    <h1 class="hero-name">Divine<br><span>Abbah.</span></h1>
+    <p class="hero-title">// Mechanical Design Engineer</p>
+    <div class="hero-certs">
+      <span class="cert-tag">CSWP — Certified SolidWorks Professional</span>
+      <span class="cert-tag">4+ Years Experience</span>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <img src="https://i.ibb.co/fG4Qbnt9/SOLIDWORKS-Professional-CAD-Design.png" alt="CSWP Badge" style="width:80px;height:80px;object-fit:contain;border-radius:50%;border:2px solid rgba(240,165,0,0.3);background:rgba(240,165,0,0.05);padding:4px;">
+    </div>
+    <p class="hero-desc">Precision-driven mechanical designer specialising in structural steelwork, mechanical components, and complex fabrication — from concept to production-ready drawings.</p>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn btn-primary">View Projects →</a>
+      <a href="#contact" class="btn btn-outline">Get In Touch</a>
+    </div>
+  </div>
+  <div class="hero-specs">
+    <div class="spec"><span class="spec-val">4+</span><span class="spec-label">Years Experience</span></div>
+    <div class="spec"><span class="spec-val">20+</span><span class="spec-label">Projects Delivered</span></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="photo-wrap reveal">
+      <div class="photo-placeholder" style="padding:0;overflow:hidden;">
+        <img src="https://i.ibb.co/4gTj3dnY/Profile-pic.jpg" alt="Divine Abbah" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#0d1117;">
+      </div>
+      <div class="photo-frame"></div>
+      <div class="annotation ann-1">REF: PROFILE-001 — Scale 1:1</div>
+      <div class="annotation ann-2">Material: Human — Rev. A</div>
+    </div>
+    <div class="reveal">
+      <div class="section-label">Engineer Profile</div>
+      <h2 class="section-title">Designed with precision.<br>Built to last.</h2>
+      <p>I'm a <strong>Mechanical Design Engineer</strong> with over 4 years of hands-on experience delivering detailed engineering designs across structural steel, mechanical assemblies, and industrial fit-out projects.</p>
+      <p>As a <strong>Certified SolidWorks Professional (CSWP)</strong>, I work across the full design lifecycle — from initial concept and 3D modelling through to fabrication drawings, BOM generation, and site coordination.</p>
+      <p>My project portfolio spans <strong>steel structures, warehouse systems, staircases, handrails, sheet metal, mechanical components, and bespoke fabrications</strong> — with a consistent focus on manufacturability and accuracy.</p>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-key">Specialisation</div><div class="info-val">Structural Steel & Mechanical</div></div>
+        <div class="info-item"><div class="info-key">Location</div><div class="info-val">Exeter, UK</div></div>
+        <div class="info-item"><div class="info-key">Certification</div><div class="info-val">CSWP — SolidWorks</div></div>
+        <div class="info-item"><div class="info-key">Availability</div><div class="info-val">Open to opportunities</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label reveal">Technical Expertise</div>
+  <h2 class="section-title reveal">Skills &amp; Capabilities</h2>
+  <div class="skills-layout">
+    <div class="skill-card reveal">
+      <div class="card-icon">🔩</div>
+      <div class="card-title">3D CAD Modelling</div>
+      <div class="card-sub">// parametric & assembly design</div>
+      <div class="skill-bars">
+        <div><div class="s-head"><span class="s-name">SolidWorks (CSWP)</span><span class="s-pct">97%</span></div><div class="s-track"><div class="s-fill" data-w="0.97"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Part & Assembly Modelling</span><span class="s-pct">95%</span></div><div class="s-track"><div class="s-fill" data-w="0.95"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Sheet Metal Design</span><span class="s-pct">88%</span></div><div class="s-track"><div class="s-fill" data-w="0.88"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Weldment Structures</span><span class="s-pct">90%</span></div><div class="s-track"><div class="s-fill" data-w="0.90"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="card-icon">📐</div>
+      <div class="card-title">Technical Drawing</div>
+      <div class="card-sub">// GD&T, standards, fabrication</div>
+      <div class="skill-bars">
+        <div><div class="s-head"><span class="s-name">Engineering Drawings (ISO/BS)</span><span class="s-pct">94%</span></div><div class="s-track"><div class="s-fill" data-w="0.94"></div></div></div>
+        <div><div class="s-head"><span class="s-name">GD&T (Geometric Tolerancing)</span><span class="s-pct">85%</span></div><div class="s-track"><div class="s-fill" data-w="0.85"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Fabrication & Weld Drawings</span><span class="s-pct">92%</span></div><div class="s-track"><div class="s-fill" data-w="0.92"></div></div></div>
+        <div><div class="s-head"><span class="s-name">BOM / Parts Lists</span><span class="s-pct">96%</span></div><div class="s-track"><div class="s-fill" data-w="0.96"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="card-icon">🏗️</div>
+      <div class="card-title">Structural Design</div>
+      <div class="card-sub">// steel, civil, industrial</div>
+      <div class="skill-bars">
+        <div><div class="s-head"><span class="s-name">Steel Structures & Frames</span><span class="s-pct">91%</span></div><div class="s-track"><div class="s-fill" data-w="0.91"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Staircases & Handrails</span><span class="s-pct">93%</span></div><div class="s-track"><div class="s-fill" data-w="0.93"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Warehouse & Racking Systems</span><span class="s-pct">87%</span></div><div class="s-track"><div class="s-fill" data-w="0.87"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Mezzanine & Platforms</span><span class="s-pct">85%</span></div><div class="s-track"><div class="s-fill" data-w="0.85"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">Manufacturing & Production</div>
+      <div class="card-sub">// CNC, fabrication, DFM</div>
+      <div class="skill-bars">
+        <div><div class="s-head"><span class="s-name">CNC Machining (Design for CNC)</span><span class="s-pct">86%</span></div><div class="s-track"><div class="s-fill" data-w="0.86"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Design for Manufacture (DFM)</span><span class="s-pct">89%</span></div><div class="s-track"><div class="s-fill" data-w="0.89"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Laser Cutting / Plasma Profiles</span><span class="s-pct">82%</span></div><div class="s-track"><div class="s-fill" data-w="0.82"></div></div></div>
+        <div><div class="s-head"><span class="s-name">Material & Section Selection</span><span class="s-pct">90%</span></div><div class="s-track"><div class="s-fill" data-w="0.90"></div></div></div>
+      </div>
+    </div>
+    <div class="software-grid reveal">
+      <div class="sw-title">Software & Tools</div>
+      <div class="sw-pills">
+        <span class="sw-pill certified">SolidWorks</span>
+        <span class="sw-pill">AutoCAD</span>
+        <span class="sw-pill">SolidWorks Simulation</span>
+        <span class="sw-pill">Microsoft Office</span>
+        <span class="sw-pill">PDM / Vault</span>
+        <span class="sw-pill">Adobe Acrobat</span>
+        <span class="sw-pill">SolidWorks PDM</span>
+      </div>
+      <p style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:1rem;">★ = Certified</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label reveal">Selected Projects</div>
+  <h2 class="section-title reveal">Engineering work<br>I'm proud of.</h2>
+  <div class="projects-list">
+
+    <!-- 01 -->
+    <div class="project-card-full reveal">
+      <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:var(--bg4);">
+        <div class="proj-carousel"><div class="pc-track" id="track01">
+          <div class="pc-slide"><img src="https://i.ibb.co/RphR3SGr/CEMTEC-Plant.jpg" alt="CEMTEC Plant"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/hF349whP/CEMTEC-Plant2.jpg" alt="CEMTEC Plant 2"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/v4kvSs7s/IMG-20230314-091728-970.jpg" alt="Plant Fabrication"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/bgXtDxnV/IMG-20230405-141822-310.jpg" alt="Plant Structure"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/whxw77bJ/20220801-141800.jpg" alt="Site Overview"></div>
+        </div></div>
+        <button class="pc-btn pc-prev" onclick="pcMove('track01','dots01',-1)">‹</button>
+        <button class="pc-btn pc-next" onclick="pcMove('track01','dots01',1)">›</button>
+        <div class="pc-dots" id="dots01"><span class="pc-dot active"></span><span class="pc-dot"></span><span class="pc-dot"></span><span class="pc-dot"></span><span class="pc-dot"></span></div>
+        <span class="media-type-tag">Site Photos — 5 images</span>
+      </div>
+      <div class="proj-info">
+        <div class="proj-num">01</div>
+        <div class="proj-body">
+          <div class="proj-tags"><span class="proj-tag">Industrial Plant</span><span class="proj-tag">CNC Programming</span><span class="proj-tag">Fabrication Supervision</span><span class="proj-tag">DFM</span></div>
+          <div class="proj-name">Cement Plant Extension</div>
+          <div class="proj-desc">A full-scope, 1-year industrial plant extension project executed in collaboration with structural engineers, fabricators, and site teams. Responsibilities covered complete technical drawing breakdown, CNC programming for ducts, chutes, pipes, and all plant components, active fabrication supervision, and development of optimised production methods — all without compromising structural integrity.</div>
+        </div>
+        <div class="proj-meta"><span class="proj-stat-val">1 Year</span><span class="proj-stat-key">Duration</span></div>
+      </div>
+    </div>
+
+    <!-- 02 -->
+    <div class="project-card-full reveal">
+      <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:var(--bg4);">
+        <div class="proj-carousel"><div class="pc-track" id="track02">
+          <div class="pc-slide"><img src="https://i.ibb.co/DPKhLvNG/Screenshot-202606.jpg" alt="Canopy 3D Model"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/gZRZqn83/Roof-Canopy.jpg" alt="Roof Canopy Drawing"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/Ngq4v7Xz/Warehouse-Drawings-Page3.jpg" alt="Structural Drawing"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/Mkk2zs1B/20220802-145742.jpg" alt="Site Photo"></div>
+        </div></div>
+        <button class="pc-btn pc-prev" onclick="pcMove('track02','dots02',-1)">‹</button>
+        <button class="pc-btn pc-next" onclick="pcMove('track02','dots02',1)">›</button>
+        <div class="pc-dots" id="dots02"><span class="pc-dot active"></span><span class="pc-dot"></span><span class="pc-dot"></span><span class="pc-dot"></span></div>
+        <span class="media-type-tag">Project Images — 4 images</span>
+      </div>
+      <div class="proj-info">
+        <div class="proj-num">02</div>
+        <div class="proj-body">
+          <div class="proj-tags"><span class="proj-tag">Steel Structure</span><span class="proj-tag">Architectural</span><span class="proj-tag">SolidWorks</span><span class="proj-tag">Fabrication Drawings</span></div>
+          <div class="proj-name">Parasol / Canopy Roof Design</div>
+          <div class="proj-desc">Structural design and detailed drawing package for a parasol canopy roof structure. Involved 3D modelling of the full canopy assembly in SolidWorks, production of fabrication-ready drawings, and coordination with architectural requirements to meet both aesthetic and structural performance criteria.</div>
+        </div>
+        <div class="proj-meta"><span class="proj-stat-val">Canopy</span><span class="proj-stat-key">Structure Type</span></div>
+      </div>
+    </div>
+
+    <!-- 03 -->
+    <div class="project-card-full reveal">
+      <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:var(--bg4);">
+        <div class="proj-carousel"><div class="pc-track" id="track03">
+          <div class="pc-slide"><img src="https://i.ibb.co/4ZTPRB1C/Warehouse-Assm.jpg" alt="Warehouse Assembly"></div>
+        </div></div>
+        <span class="media-type-tag">Project Images</span>
+      </div>
+      <div class="proj-info">
+        <div class="proj-num">03</div>
+        <div class="proj-body">
+          <div class="proj-tags"><span class="proj-tag">Warehouse</span><span class="proj-tag">Steel Frame</span><span class="proj-tag">Purlin Layout</span></div>
+          <div class="proj-name">Warehouse Structure</div>
+          <div class="proj-desc">Complete structural design and drawing package for a 30m × 15m steel warehouse. Front, end, and plan views at 1:100, isometric 3D model, column and rafter schedules, and a detailed purlin layout with 146 purlins across 5 column lines.</div>
+        </div>
+        <div class="proj-meta"><span class="proj-stat-val">30×15m</span><span class="proj-stat-key">Footprint</span></div>
+      </div>
+    </div>
+
+    <!-- 04 -->
+    <div class="project-card-full reveal">
+      <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:var(--bg4);">
+        <div class="proj-carousel"><div class="pc-track" id="track04">
+          <div class="pc-slide"><img src="https://i.ibb.co/rKPjpNV8/Assmebly-REV-1.jpg" alt="Granulator Assembly REV 1"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/JjkrCRdV/Granulator-Structure-Assembly-pg1.jpg" alt="Granulator Structure Assembly"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/zHCynr51/IMG-20220726-110733-733.jpg" alt="Granulator Site Photo 1"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/svwKvXPk/IMG-20220726-110642-015.jpg" alt="Granulator Site Photo 2"></div>
+        </div></div>
+        <button class="pc-btn pc-prev" onclick="pcMove('track04','dots04',-1)">‹</button>
+        <button class="pc-btn pc-next" onclick="pcMove('track04','dots04',1)">›</button>
+        <div class="pc-dots" id="dots04"><span class="pc-dot active"></span><span class="pc-dot"></span><span class="pc-dot"></span><span class="pc-dot"></span></div>
+        <span class="media-type-tag">Project Images</span>
+      </div>
+      <div class="proj-info">
+        <div class="proj-num">04</div>
+        <div class="proj-body">
+          <div class="proj-tags"><span class="proj-tag">Industrial Platform</span><span class="proj-tag">Staircase</span><span class="proj-tag">Access Structure</span></div>
+          <div class="proj-name">Granulator Access Platform</div>
+          <div class="proj-desc">Elevated industrial access platform with integrated staircase for a granulator machine. Includes checker plate flooring, column supports, and a staircase assembly with handrail, toe boards, and base connections.</div>
+        </div>
+        <div class="proj-meta"><span class="proj-stat-val">Access</span><span class="proj-stat-key">Platform</span></div>
+      </div>
+    </div>
+
+    <!-- 05 -->
+    <div class="project-card-full reveal">
+      <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:var(--bg4);">
+        <div class="proj-carousel"><div class="pc-track" id="track05">
+          <div class="pc-slide"><img src="https://i.ibb.co/wrWpKNND/p6.jpg" alt="Staircase Drawing"></div>
+          <div class="pc-slide"><img src="https://i.ibb.co/4wCSVK42/Railing-Design-Page1.jpg" alt="Railing Design"></div>
+        </div></div>
+        <button class="pc-btn pc-prev" onclick="pcMove('track05','dots05',-1)">‹</button>
+        <button class="pc-btn pc-next" onclick="pcMove('track05','dots05',1)">›</button>
+        <div class="pc-dots" id="dots05"><span class="pc-dot active"></span><span class="pc-dot"></span></div>
+        <span class="media-type-tag">Project Images</span>
+      </div>
+      <div class="proj-info">
+        <div class="proj-num">05</div>
+        <div class="proj-body">
+          <div class="proj-tags"><span class="proj-tag">Staircase</span><span class="proj-tag">Handrail</span><span class="proj-tag">Glass Balustrade</span><span class="proj-tag">Assembly</span></div>
+          <div class="proj-name">Main Staircase & Handrail Assembly</div>
+          <div class="proj-desc">Combined design and detailed drawing package for a main interior staircase and its full handrail system. The staircase featured hardwood landings, risers, C-profile stringers, glass balustrade, and threaded rod supports at 1:30 scale. The handrail system covered a 4-storey configuration with flat top rails, section posts, 15mm rod infill, and connection plates detailed at 1:15 scale with full assembly at 1:40.</div>
+        </div>
+        <div class="proj-meta"><span class="proj-stat-val">4-storey</span><span class="proj-stat-key">Configuration</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- COLLABORATORS -->
+<section id="collaborators">
+  <div class="section-label reveal">Collaborations</div>
+  <h2 class="section-title reveal">Companies I've<br>worked with.</h2>
+  <p class="collab-intro reveal">Over the course of my career I've contributed design and engineering work to projects commissioned by or in partnership with the following organisations.</p>
+  <div style="position:relative;" class="reveal">
+    <div class="slider-header">
+      <span style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">8 Organisations</span>
+      <div class="slider-arrows">
+        <button class="s-arrow" onclick="slideMove(-1)">‹</button>
+        <button class="s-arrow" onclick="slideMove(1)">›</button>
+      </div>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-track" id="sliderTrack">
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/XfP8bv5p/Ayatoptech.jpg" alt="AYA Toptech"><div class="collab-name">AYA Toptech & Fabrications Ltd</div><div class="collab-type">Steel Fabrication</div></div>
+        <div class="collab-card"><span class="collab-country">AT</span><img src="https://i.ibb.co/8nVXCtfC/CEMTEC.png" alt="CEMTEC"><div class="collab-name">CEMTEC</div><div class="collab-type">Cement & Mining Technology</div></div>
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/b57whngq/Cimaf.png" alt="CIMAF"><div class="collab-name">CIMAF</div><div class="collab-type">Ciments de l'Afrique</div></div>
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/XkM9j1TY/OOA.jpg" alt="Orthoner"><div class="collab-name">Orthoner & Orthoner Architecture</div><div class="collab-type">Architecture & Design</div></div>
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/QFLj7Zxv/Contracta.jpg" alt="Contracta"><div class="collab-name">Contracta</div><div class="collab-type">Construction & Engineering</div></div>
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/rRKH7dS8/Grow-Engineering.png" alt="Grow Engineering"><div class="collab-name">Grow Engineering</div><div class="collab-type">Civil & Building Construction</div></div>
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/k2DqZtCd/CBI.png" alt="CBI Ghana Ltd"><div class="collab-name">CBI Ghana Ltd</div><div class="collab-type">Cement Manufacturing</div></div>
+        <div class="collab-card"><span class="collab-country">GH</span><img src="https://i.ibb.co/7NkZPsY1/Devtraco.jpg" alt="Devtraco"><div class="collab-name">Devtraco</div><div class="collab-type">Real Estate & Construction</div></div>
+      </div>
+    </div>
+    <div class="slider-dots" id="sliderDots"></div>
+  </div>
+</section>
+
+<!-- DESIGN PORTFOLIO -->
+<section id="gallery">
+  <div class="section-label reveal">Design Portfolio</div>
+  <h2 class="section-title reveal">From model to<br>the shop floor.</h2>
+  <div class="gallery-filter reveal">
+    <button class="f-btn active" onclick="doFilter('all',this)">All</button>
+    <button class="f-btn" onclick="doFilter('structural',this)">Structural</button>
+    <button class="f-btn" onclick="doFilter('mechanical',this)">Mechanical</button>
+    <button class="f-btn" onclick="doFilter('cad',this)">3D Models</button>
+  </div>
+  <div class="portfolio-wrap reveal" id="conveyorWrap">
+    <div class="conveyor-track" id="conveyorTrack">
+      <div class="conv-card" data-cat="structural"><img src="https://i.ibb.co/gM6pZGhp/Bridge2-1.jpg" alt="Steel Foot Bridge Type 2"><div class="conv-label"><span class="conv-cat">Structural</span><br>Steel Foot Bridge — Type 2</div></div>
+      <div class="conv-card" data-cat="structural"><img src="https://i.ibb.co/7JDYD4XK/Bridge2.jpg" alt="Steel Foot Bridge"><div class="conv-label"><span class="conv-cat">Structural</span><br>Steel Foot Bridge — Assembly Drawing</div></div>
+      <div class="conv-card" data-cat="structural"><img src="https://i.ibb.co/Ngq4v7Xz/Warehouse-Drawings-Page3.jpg" alt="Warehouse Drawings"><div class="conv-label"><span class="conv-cat">Structural</span><br>Warehouse Structure — Drawing Package</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/d4PSQD5P/Mould-Assm.jpg" alt="Mould Assembly"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Block Mould — Assembly</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/DHF9qwPF/Exhaust-Covering.jpg" alt="Exhaust Cover"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Exhaust Cover — Fabrication Drawing</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/WNMbqQ2w/M5-Beam-Mold-Assembly.jpg" alt="M5 Beam Mold"><div class="conv-label"><span class="conv-cat">3D Model</span><br>M5 Beam Mould — Assembly Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/F4ccHqcy/Mold-Assembly.jpg" alt="Mold Assembly"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Mould Assembly — 3D Model</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/ksYSnCcp/Elbow-Flange.jpg" alt="Elbow Flange"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Elbow Flange — Detail Drawing</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/3YWjwF8j/Phone-Case.jpg" alt="Phone Case"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Phone Case — 3D Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/FkNHsG8y/Necklace2.jpg" alt="Necklace"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Necklace — 3D CAD Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/vCdpvNWj/Gold-Block.jpg" alt="Gold Block"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Gold Block — 3D Model</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/x8s77rSR/Knurl-Surface.jpg" alt="Knurl Surface"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Knurl Surface — CNC Detail</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/5hkP0Lwn/Shell-unit-sorting.jpg" alt="Shell Unit Sorting"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Shell Unit Sorting — Assembly</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/6J8dDWkq/Wrench.jpg" alt="Wrench"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Wrench — 3D CAD Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/ccWzWxwx/Space-Mouse.jpg" alt="Space Mouse"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Space Mouse — 3D Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/JjPf5nx7/Ceramic-Mug.jpg" alt="Ceramic Mug"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Ceramic Mug — 3D CAD Model</div></div>
+      <!-- duplicate set for seamless loop -->
+      <div class="conv-card" data-cat="structural"><img src="https://i.ibb.co/gM6pZGhp/Bridge2-1.jpg" alt="Steel Foot Bridge Type 2"><div class="conv-label"><span class="conv-cat">Structural</span><br>Steel Foot Bridge — Type 2</div></div>
+      <div class="conv-card" data-cat="structural"><img src="https://i.ibb.co/7JDYD4XK/Bridge2.jpg" alt="Steel Foot Bridge"><div class="conv-label"><span class="conv-cat">Structural</span><br>Steel Foot Bridge — Assembly Drawing</div></div>
+      <div class="conv-card" data-cat="structural"><img src="https://i.ibb.co/Ngq4v7Xz/Warehouse-Drawings-Page3.jpg" alt="Warehouse Drawings"><div class="conv-label"><span class="conv-cat">Structural</span><br>Warehouse Structure — Drawing Package</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/d4PSQD5P/Mould-Assm.jpg" alt="Mould Assembly"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Block Mould — Assembly</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/DHF9qwPF/Exhaust-Covering.jpg" alt="Exhaust Cover"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Exhaust Cover — Fabrication Drawing</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/WNMbqQ2w/M5-Beam-Mold-Assembly.jpg" alt="M5 Beam Mold"><div class="conv-label"><span class="conv-cat">3D Model</span><br>M5 Beam Mould — Assembly Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/F4ccHqcy/Mold-Assembly.jpg" alt="Mold Assembly"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Mould Assembly — 3D Model</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/ksYSnCcp/Elbow-Flange.jpg" alt="Elbow Flange"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Elbow Flange — Detail Drawing</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/3YWjwF8j/Phone-Case.jpg" alt="Phone Case"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Phone Case — 3D Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/FkNHsG8y/Necklace2.jpg" alt="Necklace"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Necklace — 3D CAD Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/vCdpvNWj/Gold-Block.jpg" alt="Gold Block"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Gold Block — 3D Model</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/x8s77rSR/Knurl-Surface.jpg" alt="Knurl Surface"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Knurl Surface — CNC Detail</div></div>
+      <div class="conv-card" data-cat="mechanical"><img src="https://i.ibb.co/5hkP0Lwn/Shell-unit-sorting.jpg" alt="Shell Unit Sorting"><div class="conv-label"><span class="conv-cat">Mechanical</span><br>Shell Unit Sorting — Assembly</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/6J8dDWkq/Wrench.jpg" alt="Wrench"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Wrench — 3D CAD Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/ccWzWxwx/Space-Mouse.jpg" alt="Space Mouse"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Space Mouse — 3D Model</div></div>
+      <div class="conv-card" data-cat="cad"><img src="https://i.ibb.co/JjPf5nx7/Ceramic-Mug.jpg" alt="Ceramic Mug"><div class="conv-label"><span class="conv-cat">3D Model</span><br>Ceramic Mug — 3D CAD Model</div></div>
+    </div>
+  </div>
+  <div class="filtered-grid" id="filteredGrid"></div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <div class="section-label" style="justify-content:center">Get In Touch</div>
+    <h2 class="section-title">Have a project<br>that needs designing?</h2>
+    <p class="contact-desc">Whether it's a structural steel package, a complex mechanical assembly, or precision fabrication drawings — I'd love to hear about your project.</p>
+    <a href="mailto:divineabbah7@gmail.com" class="contact-email">divineabbah7@gmail.com</a>
+    <div class="social-row">
+      <a href="https://www.linkedin.com/in/divineabbah" target="_blank" class="soc-link">↗ LinkedIn</a>
+      <a href="#" class="soc-link">↗ Download CV</a>
+      <a href="https://grabcad.com/divine.abbah-1" target="_blank" class="soc-link">↗ GrabCAD</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <em>Divine Abbah</em>
+  <span>Mechanical Design Engineer — <em>Exeter, UK</em></span>
+  <span>CSWP Certified ✦ 2026</span>
+</footer>
+
+<script>
+  // Reveal
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);obs.unobserve(e.target);}
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Skill bars
+  const sObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.s-fill').forEach((bar,i)=>{
+          setTimeout(()=>{bar.style.transform=`scaleX(${bar.dataset.w})`;},i*100);
+        });
+        sObs.unobserve(e.target);
+      }
+    });
+  },{threshold:0.3});
+  document.querySelectorAll('.skill-card').forEach(c=>sObs.observe(c));
+
+  // Project carousels
+  const pcState={};
+  function pcMove(trackId,dotsId,dir){
+    const track=document.getElementById(trackId);
+    const dots=document.getElementById(dotsId);
+    const n=track.querySelectorAll('.pc-slide').length;
+    if(!pcState[trackId])pcState[trackId]=0;
+    pcState[trackId]=(pcState[trackId]+dir+n)%n;
+    track.style.transform=`translateX(-${pcState[trackId]*100}%)`;
+    dots.querySelectorAll('.pc-dot').forEach((d,i)=>d.classList.toggle('active',i===pcState[trackId]));
+  }
+  window.pcMove=pcMove;
+
+  // Collaborator slider
+  const track=document.getElementById('sliderTrack');
+  const dotsEl=document.getElementById('sliderDots');
+  const cards=track.querySelectorAll('.collab-card');
+  const cardW=220+24;
+  const total=cards.length;
+  let cur=0,timer;
+  const visible=()=>Math.floor(track.parentElement.offsetWidth/cardW);
+  const numDots=()=>Math.max(1,total-visible()+1);
+  function buildDots(){
+    dotsEl.innerHTML='';
+    for(let i=0;i<numDots();i++){
+      const d=document.createElement('button');
+      d.className='dot'+(i===cur?' active':'');
+      d.onclick=()=>goTo(i);
+      dotsEl.appendChild(d);
+    }
+  }
+  function goTo(idx){
+    cur=Math.max(0,Math.min(idx,numDots()-1));
+    track.style.transform=`translateX(-${cur*cardW}px)`;
+    dotsEl.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+    resetTimer();
+  }
+  function slideMove(dir){goTo((cur+dir+numDots())%numDots());}
+  function resetTimer(){clearInterval(timer);timer=setInterval(()=>slideMove(1),3000);}
+  buildDots();resetTimer();
+  window.addEventListener('resize',()=>{buildDots();goTo(0);});
+  window.slideMove=slideMove;
+
+  // Design portfolio filter
+  const allCards=[
+    {cat:'structural',img:'https://i.ibb.co/gM6pZGhp/Bridge2-1.jpg',label:'Steel Foot Bridge — Type 2'},
+    {cat:'structural',img:'https://i.ibb.co/7JDYD4XK/Bridge2.jpg',label:'Steel Foot Bridge — Assembly Drawing'},
+    {cat:'structural',img:'https://i.ibb.co/Ngq4v7Xz/Warehouse-Drawings-Page3.jpg',label:'Warehouse Structure — Drawing Package'},
+    {cat:'mechanical',img:'https://i.ibb.co/d4PSQD5P/Mould-Assm.jpg',label:'Block Mould — Assembly'},
+    {cat:'mechanical',img:'https://i.ibb.co/DHF9qwPF/Exhaust-Covering.jpg',label:'Exhaust Cover — Fabrication Drawing'},
+    {cat:'cad',img:'https://i.ibb.co/WNMbqQ2w/M5-Beam-Mold-Assembly.jpg',label:'M5 Beam Mould — Assembly Model'},
+    {cat:'cad',img:'https://i.ibb.co/F4ccHqcy/Mold-Assembly.jpg',label:'Mould Assembly — 3D Model'},
+    {cat:'mechanical',img:'https://i.ibb.co/ksYSnCcp/Elbow-Flange.jpg',label:'Elbow Flange — Detail Drawing'},
+    {cat:'cad',img:'https://i.ibb.co/3YWjwF8j/Phone-Case.jpg',label:'Phone Case — 3D Model'},
+    {cat:'cad',img:'https://i.ibb.co/FkNHsG8y/Necklace2.jpg',label:'Necklace — 3D CAD Model'},
+    {cat:'cad',img:'https://i.ibb.co/vCdpvNWj/Gold-Block.jpg',label:'Gold Block — 3D Model'},
+    {cat:'mechanical',img:'https://i.ibb.co/x8s77rSR/Knurl-Surface.jpg',label:'Knurl Surface — CNC Detail'},
+    {cat:'mechanical',img:'https://i.ibb.co/5hkP0Lwn/Shell-unit-sorting.jpg',label:'Shell Unit Sorting — Assembly'},
+    {cat:'cad',img:'https://i.ibb.co/6J8dDWkq/Wrench.jpg',label:'Wrench — 3D CAD Model'},
+    {cat:'cad',img:'https://i.ibb.co/ccWzWxwx/Space-Mouse.jpg',label:'Space Mouse — 3D Model'},
+    {cat:'cad',img:'https://i.ibb.co/JjPf5nx7/Ceramic-Mug.jpg',label:'Ceramic Mug — 3D CAD Model'},
+  ];
+  function doFilter(cat,btn){
+    document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const wrap=document.getElementById('conveyorWrap');
+    const grid=document.getElementById('filteredGrid');
+    if(cat==='all'){wrap.style.display='block';grid.classList.remove('active');}
+    else{
+      wrap.style.display='none';grid.classList.add('active');
+      grid.innerHTML=allCards.filter(c=>c.cat===cat).map(c=>`
+        <div class="conv-card"><img src="${c.img}" alt="${c.label}">
+        <div class="conv-label"><span class="conv-cat">${c.cat==='cad'?'3D Model':c.cat.charAt(0).toUpperCase()+c.cat.slice(1)}</span><br>${c.label}</div></div>
+      `).join('');
+    }
+  }
+
+  // Nav highlight
+  const secs=document.querySelectorAll('section[id]');
+  const navAs=document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll',()=>{
+    let c='';
+    secs.forEach(s=>{if(window.scrollY>=s.offsetTop-200)c=s.id;});
+    navAs.forEach(a=>{a.style.color=a.getAttribute('href')===`#${c}`?'var(--accent)':'';});
+  });
+</script>
+</body>
+</html>
