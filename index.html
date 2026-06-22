@@ -614,6 +614,7 @@
 
   // Project carousels
   const pcState={};
+  const pcTimers={};
   function pcMove(trackId,dotsId,dir){
     const track=document.getElementById(trackId);
     const dots=document.getElementById(dotsId);
@@ -621,8 +622,21 @@
     if(!pcState[trackId])pcState[trackId]=0;
     pcState[trackId]=(pcState[trackId]+dir+n)%n;
     track.style.transform=`translateX(-${pcState[trackId]*100}%)`;
-    dots.querySelectorAll('.pc-dot').forEach((d,i)=>d.classList.toggle('active',i===pcState[trackId]));
+    if(dots) dots.querySelectorAll('.pc-dot').forEach((d,i)=>d.classList.toggle('active',i===pcState[trackId]));
   }
+  function startAutoPlay(trackId,dotsId){
+    if(pcTimers[trackId]) clearInterval(pcTimers[trackId]);
+    pcTimers[trackId]=setInterval(()=>pcMove(trackId,dotsId,1),3000);
+  }
+  // Init all carousels
+  [['track01','dots01'],['track02','dots02'],['track03',null],['track04','dots04'],['track05','dots05']].forEach(([t,d])=>{
+    const track=document.getElementById(t);
+    if(!track) return;
+    startAutoPlay(t,d);
+    // pause on hover
+    track.parentElement.addEventListener('mouseenter',()=>clearInterval(pcTimers[t]));
+    track.parentElement.addEventListener('mouseleave',()=>startAutoPlay(t,d));
+  });
   window.pcMove=pcMove;
 
   // Collaborator slider
